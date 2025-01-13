@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Cloud Storage Uploader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f7f9fc;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .file-list {
+            margin-top: 20px;
+        }
+        .file-list button {
+            margin-left: 10px;
+            background-color: #dc3545;
+        }
+        .file-list button:hover {
+            background-color: #a71d2a;
+        }
+    </style>
+</head>
+<body>
+    <h1>Google Cloud Storage Uploader</h1>
+
+    <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload File</button>
+    </form>
+
+    <div class="file-list">
+        <h2>Uploaded Files</h2>
+        <ul id="files">
+            <!-- List files dynamically -->
+        </ul>
+    </div>
+
+    <script>
+        // Fetch files on page load
+        async function fetchFiles() {
+            const response = await fetch('/files');
+            const files = await response.json();
+
+            const filesList = document.getElementById('files');
+            filesList.innerHTML = ''; // Clear the list first
+
+            files.forEach(file => {
+                const listItem = document.createElement('li');
+                listItem.textContent = file;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => deleteFile(file);
+
+                listItem.appendChild(deleteButton);
+                filesList.appendChild(listItem);
+            });
+        }
+
+        // Delete file
+        async function deleteFile(filename) {
+            const response = await fetch(`/delete/${filename}`, { method: 'DELETE' });
+
+            if (response.ok) {
+                alert(`File "${filename}" deleted successfully!`);
+                fetchFiles(); // Refresh the file list
+            } else {
+                alert(`Failed to delete "${filename}".`);
+            }
+        }
+
+        // Load files on page load
+        window.onload = fetchFiles;
+    </script>
+</body>
+</html>
